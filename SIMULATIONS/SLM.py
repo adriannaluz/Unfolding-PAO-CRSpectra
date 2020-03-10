@@ -147,34 +147,38 @@ for i, nuclei in enumerate(composition):
     #==== SLM ====#
     E_GH_NO_SD = E_GH[np.where(GH_data['hybrid_FDenergy']==0)[0]] # energy of the events recorded by FD and not by SD
     E_GH_e_NO_SD = GH_data['MC_e_energy'][np.where(GH_data['hybrid_FDenergy']==0)[0]] # energy of the events recorded by FD and not by SD
-
+    s1000_e_NO_SD = GH_data['Shw_size_error'][np.where(GH_data['hybrid_FDenergy']==0)[0]] # signal error of the events recorded by the FD and not by the SD (GH)
     E_GH = E_GH[E_GH>(3*10**18)] # Golden hybrid energies above 3*10**(18)
 
     total_sum = []
     def L_SLM(par):
         print('test combination (A, B)=', par)
         sum_k = []
-        print(sum_k)
-        print(total_sum)
+
         for k in range(len(E_GH)):
-            sigma_S_k = ((0.2*((E_GH_NO_SD/par[0]/(10**(18)))**(1/par[1])))**2 + (E_GH_e_NO_SD)**2)**(0.5)
+            sigma_S_k = ((0.1*((E_GH_NO_SD/par[0]/(10**(18)))**(1/par[1])))**2 + (s1000_e_NO_SD)**2)**(0.5)
+            #print(s38_GH[k] - (E_GH_NO_SD/par[0]/10**(18))**(1/par[1]))
+            #print(sigma_S_k)
 
             sigma_E_k = E_GH_e_NO_SD
+            #print(E_GH[k] - E_GH_NO_SD)
+            #print(sigma_E_k)
 
             c = 1 / sigma_E_k / sigma_S_k
-
+            #print(c)
             exp_1 = np.exp(-0.5 * (E_GH[k] - E_GH_NO_SD)**2 / sigma_E_k**2)
 
             exp_2 = np.exp(-0.5 * (s38_GH[k] - (E_GH_NO_SD/par[0]/10**(18))**(1/par[1]))**2 / sigma_S_k**2)
-
+            #print(exp_2)
             sum_k.append(-np.log(np.sum(c * exp_1 * exp_2)))
 
         total_sum.append(np.sum(sum_k))
-
+        #print(sum_k)
+        print(total_sum)
         return total_sum[0]
 
-    a_ = np.linspace(0.9*(a), 1.1*(a), 15)
-    b_ = np.linspace(0.9*b, 1.09*b, 15)
+    a_ = np.linspace(0.98*(a), 1.05*(a), 10)
+    b_ = np.linspace(0.95*b, 1.05*b, 10)
     print(a_,b_)
 
     likelihood = np.zeros((len(a_), len(b_)))
@@ -182,5 +186,5 @@ for i, nuclei in enumerate(composition):
         for j, bj in enumerate(b_):
             likelihood[i, j] = L_SLM([ai, bj])
 
-    #print(likelihood)
-    np.save('/net/scratch/Adrianna/likelihood_scan_other_%s.npy' % kw.nucleus, likelihood)
+    print(likelihood)
+    np.save('/net/scratch/Adrianna/likelihood_scan_other_%s.npy' % nuclei, likelihood)
