@@ -27,13 +27,14 @@ kw = parser.parse_args()
 # 'MC_xmax', 'Total_ev', 'GH_events']
 
 path_scratch = '/net/scratch/Adrianna/data_analysis/'
-path_home = '/home/Adrianna/data_analysis/SIMULATIONS/'
+path_scratch_CIC = '/net/scratch/Adrianna/data_analysis_data/SIMULATIONS/'
+#path_home = '/home/Adrianna/data_analysis/SIMULATIONS/'
 
 #==== Naming npz arrays ====#
-SD_array     = path_home + 'arrays/SD_only/%s_SDonly_merge_p3.npz' % kw.nucleus
-GH_array     = path_home + 'arrays/FD/%s_afterCuts_mod_merge_p3.npz' % kw.nucleus
-GH_array_FOV = path_home + 'arrays/GH/%s_FOVcuts_merge_p3.npz' % kw.nucleus  # After FOVcut
-CIC_array    = path_home + "arrays/CIC_%s.npz" % kw.nucleus
+SD_array     = path_scratch + 'arrays/SD_only/%s_SDonly_merge_p3.npz' % kw.nucleus
+GH_array     = path_scratch + 'arrays/GH/%s_afterCuts_mod_merge_p3.npz' % kw.nucleus
+GH_array_FOV = path_scratch + 'arrays/GH_FOVcuts/%s_FOVcuts_merge_p3.npz' % kw.nucleus  # After FOVcut
+CIC_array    = path_scratch_CIC + "arrays/CIC_%s.npz" % kw.nucleus
 
 #==== Opening data containers ====#
 SD_data = ctn.DataContainer(SD_array)
