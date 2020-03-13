@@ -74,8 +74,8 @@ def log_normal(x,s,loc,scale):
     return lognorm.pdf(x, s, loc, scale)
     #return np.exp(-0.5*(x/sigma)**2) / sigma / x / np.sqrt(2*np.pi)
 
-composition = ["proton", "helium", "oxygen", "iron"]
-#composition = ["proton"]
+#composition = ["proton", "helium", "oxygen", "iron"]
+composition = ["proton"]
 #composition = ["helium"]
 #composition = ["oxygen"]
 #composition = ["iron"]
@@ -157,19 +157,12 @@ for i, nuclei in enumerate(composition):
 
         for k in range(len(E_GH)):
             sigma_S_k = ((0.1*((E_GH_NO_SD/par[0]/(10**(18)))**(1/par[1])))**2 + (s1000_e_NO_SD)**2)**(0.5)
-            #print(s38_GH[k] - (E_GH_NO_SD/par[0]/10**(18))**(1/par[1]))
-            #print(sigma_S_k)
-
             sigma_E_k = E_GH_e_NO_SD
-            #print(E_GH[k] - E_GH_NO_SD)
-            #print(sigma_E_k)
-
             c = 1 / sigma_E_k / sigma_S_k
-            #print(c)
-            exp_1 = np.exp(-0.5 * (E_GH[k] - E_GH_NO_SD)**2 / sigma_E_k**2)
 
+            exp_1 = np.exp(-0.5 * (E_GH[k] - E_GH_NO_SD)**2 / sigma_E_k**2)
             exp_2 = np.exp(-0.5 * (s38_GH[k] - (E_GH_NO_SD/par[0]/10**(18))**(1/par[1]))**2 / sigma_S_k**2)
-            #print(exp_2)
+
             sum_k.append(-np.log(np.sum(c * exp_1 * exp_2)))
 
         total_sum.append(np.sum(sum_k))
@@ -177,8 +170,8 @@ for i, nuclei in enumerate(composition):
         print(total_sum)
         return total_sum[0]
 
-    a_ = np.linspace(0.98*(a), 1.05*(a), 10)
-    b_ = np.linspace(0.95*b, 1.05*b, 10)
+    a_ = np.linspace(0.98 * a, 1.05 * a, 10)
+    b_ = np.linspace(0.95 * b, 1.05 * b, 10)
     print(a_,b_)
 
     likelihood = np.zeros((len(a_), len(b_)))
@@ -187,4 +180,5 @@ for i, nuclei in enumerate(composition):
             likelihood[i, j] = L_SLM([ai, bj])
 
     print(likelihood)
-    np.save('/net/scratch/Adrianna/likelihood_scan_other_%s.npy' % nuclei, likelihood)
+    np.save('/net/scratch/Adrianna/likelihood_scan2_%s.npy' % nuclei, likelihood)
+#proton: CondorID: 4131186
