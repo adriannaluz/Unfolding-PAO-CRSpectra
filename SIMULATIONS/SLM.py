@@ -156,7 +156,7 @@ for i, nuclei in enumerate(composition):
         sum_k = []
 
         for k in range(len(E_GH)):
-            sigma_S_k = ((0.1*((E_GH_NO_SD/par[0]/(10**(18)))**(1/par[1])))**2 + (s1000_e_NO_SD)**2)**(0.5)
+            sigma_S_k = ((0.2*((E_GH_NO_SD/par[0]/(10**(18)))**(1/par[1])))**2 + (s1000_e_NO_SD)**2)**(0.5)
             sigma_E_k = E_GH_e_NO_SD
             c = 1 / sigma_E_k / sigma_S_k
 
