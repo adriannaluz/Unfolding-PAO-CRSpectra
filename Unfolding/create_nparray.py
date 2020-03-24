@@ -1,86 +1,12 @@
 import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import seaborn as sns
 from astrotools import container as ctn
-from astrotools import statistics as stats
-from scipy.optimize import curve_fit
-#from scipy.optimize import minimize
-from scipy.stats import lognorm
-from scipy.interpolate import interp1d
 
-with_latex = {
-    "text.usetex": True,
-    "font.family": "serif",
-    "axes.labelsize": 20,
-    "font.size": 20,
-    "legend.fontsize": 20,
-    "xtick.labelsize": 15,
-    "ytick.labelsize": 15,
-    "legend.fancybox": False}
-mpl.rcParams.update(with_latex)
-
+composition = ["proton", "helium", "oxygen", "iron"]
 
 #==== Definition of the CIC fit ====#
 def CIC_fit(x, a, b, c):
     #==== ax^3 + bx^2 + cx + d ====#
     return 1 + a * x + b * x**2 + c * x**3
-
-def log_rel_diff(FD_Energy, MC_energy, bins):
-    #==== Create the plot (FD_energy-MC_energy)/MC_energy vs. MC_energy ====#
-    x = (FD_Energy-MC_energy)/MC_energy     #modify it with obs(array_name, observable)
-    dig = np.digitize(np.log10(MC_energy), bins)
-    n = len(bins) - 1
-    mx, vx, n_in_bins = np.zeros(n), np.zeros(n), np.zeros(n)
-
-    for i in range(n):
-        idx = (dig == i+1)
-
-        if not idx.any():  # check for empty bin
-            mx[i] = np.nan
-            vx[i] = np.nan
-            continue
-
-        mx[i], vx[i] = stats.mean_and_variance(x[idx])
-        n_in_bins[i] = np.sum(idx)
-
-    return mx, vx, n_in_bins
-
-def w_bin(FD_Energy, MC_energy, bins):
-    #==== Create the plot (FD_energy-MC_energy)/MC_energy vs. MC_energy ====#
-    x = FD_Energy     #modify it with obs(array_name, observable)
-    dig = np.digitize(MC_energy, bins)
-    n = len(bins) - 1
-    mx, vx, n_in_bins = np.zeros(n), np.zeros(n), np.zeros(n)
-
-    for i in range(n):
-        idx = (dig == i+1)
-
-        if not idx.any():  # check for empty bin
-            mx[i] = np.nan
-            vx[i] = np.nan
-            continue
-
-        mx[i], vx[i] = stats.mean_and_variance(x[idx])
-        n_in_bins[i] = np.sum(idx)
-
-    return mx, vx, n_in_bins
-
-def fit(E,A,B):
-    return B * np.log10(E) + A
-
-def gaussian(x,mean,sigma):
-    return np.exp(-0.5*(((x)-mean)/sigma)**2) / sigma / np.sqrt(2*np.pi)
-
-def log_normal(x,s,loc,scale):
-    return lognorm.pdf(x, s, loc, scale)
-    #return np.exp(-0.5*(x/sigma)**2) / sigma / x / np.sqrt(2*np.pi)
-
-composition = ["proton", "helium", "oxygen", "iron"]
-# composition = ["proton"]
-# composition = ["helium"]
-# composition = ["oxygen"]
-# composition = ["iron"]
 
 cos_38 = np.cos(np.deg2rad(38.))**2
 Xo = 879. # g/cm^2
@@ -88,7 +14,6 @@ bins = np.linspace(18.0, 20.2, 20)
 
 path_scratch = '/net/scratch/Adrianna/data_analysis/'
 path_scratch_CIC = '/net/scratch/Adrianna/data_analysis_data/SIMULATIONS/'
-path_home = '/home/Adrianna/data_analysis/SIMULATIONS/'
 
 for i, nuclei in enumerate(composition):
     #==== Naming npz arrays ====#
@@ -141,3 +66,22 @@ for i, nuclei in enumerate(composition):
     Xmax_GH = GH_data["MC_xmax"]
     DistXmax_GH = Xo/np.cos(zenith_GH) - Xmax_GH
     GH_energy = GH_data["FD_energy"] # GH_data["true_FD_energy"]
+
+    ID_SD, idx_sd = np.unique(SD_data['SD_eventID'], return_index=True)
+    ID_GH, idx_gh = np.unique(GH_data['SD_eventID'], return_index=True)
+    mask = np.isin(SD_data['SD_eventID'][idx_sd], GH_data['SD_eventID'][idx_gh])
+
+    n = len(E_SD)
+    data = ctn.DataContainer(n)
+
+    data["ESD_calib"] = E_SD
+    data["EFD_reco"] = FD_data["FD_energy"]
+    data["EFD_biascorr"] = FD_data["true_FD_energy"]
+    data["EGH_reco"] = GH_data["FD_energy"]
+    data["EGH_biascorr"] = GH_data["true_FD_energy"]
+    data["SDGH_ID"] = GH_data['SD_eventID'][idx_gh]
+
+    #print(data.keys())
+    #save_path = path_scratch_CIC + "arrays/Ecalibrated_%s" % nuclei
+    #data.save(save_path)
+    #print("File saved as: ",save_path)
