@@ -8,6 +8,30 @@ def CIC_fit(x, a, b, c):
     #==== ax^3 + bx^2 + cx + d ====#
     return 1 + a * x + b * x**2 + c * x**3
 
+#==== Definition of the energy fit parameters (a,b) ====#
+def energy_fitpar(composition):
+
+    if composition == "proton":
+        a = 0.217937 # EeV
+        b = 1.079747
+        return a, b
+
+    if composition == "helium":
+        a = 0.204001 # EeV
+        b = 1.084485
+        return a, b
+
+    if composition == "oxygen":
+        a = 0.194436 # EeV
+        b = 1.080255
+        return a, b
+
+    if composition == "iron":
+        a = 0.186687 # EeV
+        b = 1.080285
+        return a, b
+
+
 cos_38 = np.cos(np.deg2rad(38.))**2
 Xo = 879. # g/cm^2
 bins = np.linspace(18.0, 20.2, 20)
@@ -16,6 +40,7 @@ path_scratch = '/net/scratch/Adrianna/data_analysis/'
 path_scratch_CIC = '/net/scratch/Adrianna/data_analysis_data/SIMULATIONS/'
 
 for i, nuclei in enumerate(composition):
+    print(energy_fitpar(nuclei))
     #==== Naming npz arrays ====#
     SD_array  = path_scratch + 'arrays/SD_only/%s_SDonly_merge_p3.npz' % nuclei
     FD_array  = path_scratch + 'arrays/GH/%s_afterCuts_mod_merge_p3.npz' % nuclei
@@ -29,8 +54,8 @@ for i, nuclei in enumerate(composition):
     CIC_data = ctn.DataContainer(CIC_array)
 
     CIC_par = CIC_data["CIC_par"]
-    A, B = CIC_data["A_B"]
-    a, b = CIC_data["a_b"]
+    #A, B = CIC_data["A_B"]
+    a, b = energy_fitpar(nuclei)
     sigma_a, sigma_b = CIC_data["Erra_Errb"]
 
     #==== SD observables ====#
@@ -82,6 +107,6 @@ for i, nuclei in enumerate(composition):
     data["SDGH_ID"] = GH_data['SD_eventID'][idx_gh]
 
     #print(data.keys())
-    #save_path = path_scratch_CIC + "arrays/Ecalibrated_%s" % nuclei
+    #save_path = path_scratch_CIC + "arrays/Ecalibrated_new_%s" % nuclei
     #data.save(save_path)
     #print("File saved as: ",save_path)
