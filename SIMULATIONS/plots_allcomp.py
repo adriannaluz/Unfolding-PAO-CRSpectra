@@ -7,6 +7,7 @@ from scipy.optimize import curve_fit
 #from scipy.optimize import minimize
 from scipy.stats import lognorm
 from os.path import join
+from funcs import energy_fitpar
 
 with_latex = {
     "text.usetex": True,
@@ -102,25 +103,29 @@ E_MC = []
 s38_SD = []
 E_SD = []
 zen_SD =[]
+SD_ID = []
 
 E_MC_GH = []
 s38_GH = []
 E_GH = []
 zen_GH = []
 
-for i in range(0,3,2):
-    E_MC     = np.append(E_MC    , np.concatenate((SD_data[i]['MC_energy'], SD_data[i+1]['MC_energy'])))
-    E_MC_GH  = np.append(E_MC_GH , np.concatenate((GH_data[i]['MC_energy'], GH_data[i+1]['MC_energy'])))
+mass = []
 
+for i in range(0,3,2):
+    E_MC     = np.append(E_MC    , np.concatenate((SD_data[i]['MC_energy'] , SD_data[i+1]['MC_energy'])))
+    E_MC_GH  = np.append(E_MC_GH , np.concatenate((GH_data[i]['MC_energy'] , GH_data[i+1]['MC_energy'])))
+    SD_ID    = np.append(SD_ID   , np.concatenate((SD_data[i]['SD_eventID'], SD_data[i+1]['SD_eventID'])))
 
 for i in range(0,4,1):
+    mass.append(np.ones(len(SD_data[i]))*i)
     cos2_SD = np.cos(SD_data[i]["SD_zenith"])**2
     cos2_GH = np.cos(GH_data[i]["SD_zenith"])**2
     x_SD = cos2_SD - np.cos(np.deg2rad(38.))**2
     x_GH = cos2_GH - np.cos(np.deg2rad(38.))**2
 
     CIC_par = CIC_data[i]["CIC_par"]
-    a, b = CIC_data[i]["a_b"]
+    a, b = energy_fitpar(composition[i])#CIC_data[i]["a_b"]
 
     zen_SD = np.append(zen_SD, cos2_SD)
     s38_SD = np.append(s38_SD, SD_data[i]['s1000'] / CIC_fit(x_SD, *CIC_par))
@@ -131,10 +136,22 @@ for i in range(0,4,1):
     E_SD = np.append(E_SD, a * pow(10,18) * (SD_data[i]['s1000'] / CIC_fit(x_SD, *CIC_par))**b)
     E_GH = np.append(E_GH, a * pow(10,18) * (GH_data[i]['s1000'] / CIC_fit(x_GH, *CIC_par))**b)
 
+#n = len(E_SD)
+#data = ctn.DataContainer(n)
+#
+#data["ESD_rec"] = E_SD
+#data["ESD_MC"] = E_MC
+#data["SD_ID"] = SD_ID
+#data["composition"] = mass
+#print(data.keys())
+#save_path = path_scratch_CIC + "Enew_%s.npz" % "all"
+#data.save(save_path)
+#print("File saved as: ",save_path)
+
 ####===== old plots (FILLED HISTOGRAMS SD - GH) ====####
 
 #==== cos^2 distribution =====#
-if True:
+if False:
     hist_SD = np.histogram(cos2_SD, bins=50, density = True )#,normed=True)
 
     plt.hist(hist_SD[1][:-1], hist_SD[1], weights=hist_SD[0]/np.max(hist_SD[0]), histtype="stepfilled", color="C0", label="SD", alpha=0.5)
